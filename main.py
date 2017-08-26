@@ -29,7 +29,6 @@ class Flairbot:
     def read_config(self):
         """Read config"""
 
-        print("Cycle started!")
         self.config = configparser.ConfigParser(allow_no_value=True)
         self.config.read_string(self.subreddit.wiki["flairbot/config"].content_md)
 
@@ -45,8 +44,6 @@ class Flairbot:
             valid_user = re.match(valid, author)
             if msg.subject == "updateflair" and valid_user:
                 self.process_pm(msg.body, author, msg)
-
-        print("Cycle complete!")
 
     def process_pm(self, msg, author, msgobj):
         """Process the PMs"""
@@ -77,6 +74,7 @@ class Flairbot:
         if ban:
             self.subreddit.banned.add(user, ban_reason="Honeypot flair")
             self.reddit.redditor(user).message("Your have been banned", "Your flair selection was bad and you should feel bad. You will be unbanned if you re-evaluate your choice.")
+            return
         else:
             for the_user in self.subreddit.banned(redditor=user):
                 if the_user.note == "Honeypot flair":
@@ -95,4 +93,3 @@ class Flairbot:
 
 if __name__ == '__main__':
     Flairbot()
-
