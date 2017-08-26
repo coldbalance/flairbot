@@ -4,6 +4,7 @@ import re
 import time
 import configparser
 import praw
+import configuration
 
 class Flairbot:
     """Main class"""
@@ -11,12 +12,12 @@ class Flairbot:
     def __init__(self):
         """Initial setup"""
 
-        self.reddit = praw.Reddit(user_agent="",
-                                  client_id="",
-                                  client_secret="",
-                                  refresh_token="")
+        self.reddit = praw.Reddit(user_agent=configuration.user_agent,
+                                  client_id=configuration.client_id,
+                                  client_secret=configuration.client_secret,
+                                  refresh_token=configuration.refresh_token)
 
-        self.subreddit = self.reddit.subreddit("")
+        self.subreddit = self.reddit.subreddit(configuration.subreddit)
 
         while True:
             try:
@@ -30,7 +31,7 @@ class Flairbot:
         """Read config"""
 
         self.config = configparser.ConfigParser(allow_no_value=True)
-        self.config.read_string(self.subreddit.wiki["flairbot/config"].content_md)
+        self.config.read_string(self.subreddit.wiki[configuration.remote_config_path].content_md)
 
         self.fetch_pms()
 
@@ -42,7 +43,7 @@ class Flairbot:
         for msg in self.reddit.inbox.unread():
             author = str(msg.author)
             valid_user = re.match(valid, author)
-            if msg.subject == "updateflair" and valid_user:
+            if msg.subject == configuration.message_subject and valid_user:
                 self.process_pm(msg.body, author, msg)
 
     def process_pm(self, msg, author, msgobj):
@@ -72,12 +73,12 @@ class Flairbot:
             current_user_flair_text = current_user_flair["flair_text"] or ""
 
         if ban:
-            self.subreddit.banned.add(user, ban_reason="Honeypot flair")
-            self.reddit.redditor(user).message("Your have been banned", "Your flair selection was bad and you should feel bad. You will be unbanned if you re-evaluate your choice.")
+            self.subreddit.banned.add(user, ban_reason=configuration.ban_reason)
+            self.reddit.redditor(user).message(configuration.ban_message_subject, configuration.ban_message_body)
             return
         else:
             for the_user in self.subreddit.banned(redditor=user):
-                if the_user.note == "Honeypot flair":
+                if the_user.note == configuration.ban_reason:
                     self.subreddit.banned.remove(user)
 
         if current_user_flair_class.find("text-") != 0:
@@ -89,7 +90,7 @@ class Flairbot:
         elif current_user_flair_class.find("text-pink") == 0:
             self.subreddit.flair.set(user, current_user_flair_text, "text-pink-" + flair + "-img")
         elif current_user_flair_class.find("text-brown") == 0:
-            self.reddit.redditor(user).message("Sorry!", "Unfortunately, you cannot change your flair by yourself. Please contact the moderators.")
+            self.reddit.redditor(user).message(configuration.shame_message_subject, configuration.shame_message_body)
 
 if __name__ == '__main__':
     Flairbot()
