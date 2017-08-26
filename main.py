@@ -1,5 +1,6 @@
 """Set user flairs."""
 
+import re
 import configparser
 import praw
 
