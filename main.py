@@ -10,7 +10,7 @@ class Flairbot:
         """Initial setup"""
 
         self.reddit = praw.Reddit(user_agent="",
-                                  client_id=""",
+                                  client_id="",
                                   client_secret="",
                                   refresh_token="")
 
