@@ -16,7 +16,7 @@ class Flairbot:
                                   client_secret="",
                                   refresh_token="")
 
-        self.subreddit = self.reddit.subreddit("neoliberal")
+        self.subreddit = self.reddit.subreddit("")
 
         while True:
             try:
