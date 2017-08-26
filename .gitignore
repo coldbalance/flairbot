@@ -102,3 +102,5 @@ ENV/
 
 #configuration
 configuration.py
+
+.vscode/*
