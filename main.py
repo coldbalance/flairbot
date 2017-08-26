@@ -74,7 +74,8 @@ class Flairbot:
 
         if ban:
             self.subreddit.banned.add(user, ban_reason=configuration.ban_reason)
-            self.reddit.redditor(user).message(configuration.ban_message_subject, configuration.ban_message_body)
+            self.reddit.redditor(user).message(configuration.ban_message_subject,
+                                               configuration.ban_message_body)
             return
         else:
             for the_user in self.subreddit.banned(redditor=user):
@@ -90,7 +91,8 @@ class Flairbot:
         elif current_user_flair_class.find("text-pink") == 0:
             self.subreddit.flair.set(user, current_user_flair_text, "text-pink-" + flair + "-img")
         elif current_user_flair_class.find("text-brown") == 0:
-            self.reddit.redditor(user).message(configuration.shame_message_subject, configuration.shame_message_body)
+            self.reddit.redditor(user).message(configuration.shame_message_subject,
+                                               configuration.shame_message_body)
 
 if __name__ == '__main__':
     Flairbot()
