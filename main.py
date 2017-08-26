@@ -61,7 +61,7 @@ class Flairbot:
             current_user_flair_class = current_user_flair["flair_css_class"] or ""
             current_user_flair_text = current_user_flair["flair_text"] or ""
 
-        if current_user_flair_class.find("text-") != 0:
+        elif current_user_flair_class.find("text-") != 0:
             self.subreddit.flair.set(user, text, flair + "-img")
         if current_user_flair_class.find("text-red") == 0:
             self.subreddit.flair.set(user, current_user_flair_text, "text-red-" + flair + "-img")
