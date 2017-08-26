@@ -1,6 +1,7 @@
 """Set user flairs."""
 
 import re
+import time
 import configparser
 import praw
 
@@ -17,15 +18,22 @@ class Flairbot:
 
         self.subreddit = self.reddit.subreddit("neoliberal")
 
-        self.read_config()
-
-        self.set_flair("coldbalance", "clegg", "Nick Clegg", False)
+        while True:
+            try:
+                self.read_config()
+            except BaseException as error:
+                print("An exception was thrown!")
+                print(str(error))
+            time.sleep(5)
 
     def read_config(self):
         """Read config"""
 
+        print("Cycle started!")
         self.config = configparser.ConfigParser(allow_no_value=True)
         self.config.read_string(self.subreddit.wiki["flairbot/config"].content_md)
+
+        self.fetch_pms()
 
     def fetch_pms(self):
         """Get PMs for account"""
@@ -38,13 +46,17 @@ class Flairbot:
             if msg.subject == "updateflair" and valid_user:
                 self.process_pm(msg.body, author, msg)
 
+        print("Cycle complete!")
+
     def process_pm(self, msg, author, msgobj):
         """Process the PMs"""
 
         if self.check_flair_status("allow", msg):
-            self.set_flair(author, msg, False)
+            self.set_flair(author, msg, self.config.get("allow", msg), False)
         elif self.check_flair_status("ban", msg):
-            self.set_flair(author, msg, True)
+            self.set_flair(author, msg, self.config.get("ban", msg), True)
+
+        msgobj.mark_read()
 
     def check_flair_status(self, section, key):
         """Check if the flair is allowed"""
@@ -62,6 +74,14 @@ class Flairbot:
             current_user_flair_class = current_user_flair["flair_css_class"] or ""
             current_user_flair_text = current_user_flair["flair_text"] or ""
 
+        if ban:
+            self.subreddit.banned.add(user, ban_reason="Honeypot flair")
+            self.reddit.redditor(user).message("Your have been banned", "Your flair selection was bad and you should feel bad. You will be unbanned if you re-evaluate your choice.")
+        else:
+            for the_user in self.subreddit.banned(redditor=user):
+                if the_user.note == "Honeypot flair":
+                    self.subreddit.banned.remove(user)
+
         if current_user_flair_class.find("text-") != 0:
             self.subreddit.flair.set(user, text, flair + "-img")
         elif current_user_flair_class.find("text-red") == 0:
@@ -75,3 +95,4 @@ class Flairbot:
 
 if __name__ == '__main__':
     Flairbot()
+
