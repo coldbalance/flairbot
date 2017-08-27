@@ -99,8 +99,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+<<<<<<< HEAD
 
 #configuration
 configuration.py
 
 .vscode/*
+=======
+>>>>>>> parent of a9c46f7... Update .gitignore
