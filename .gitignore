@@ -103,7 +103,10 @@ ENV/
 
 #configuration
 configuration.py
+<<<<<<< HEAD
 
 .vscode/*
 =======
 >>>>>>> parent of a9c46f7... Update .gitignore
+=======
+>>>>>>> parent of 7807634... Temp Banning Support

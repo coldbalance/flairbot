@@ -6,7 +6,7 @@ import configparser
 import praw
 import configuration
 
-class Flairbot(object):
+class Flairbot:
     """Main class"""
 
     def __init__(self):
@@ -31,8 +31,7 @@ class Flairbot(object):
         """Read config"""
 
         self.config = configparser.ConfigParser(allow_no_value=True)
-        self.config.read_string(
-            self.subreddit.wiki[configuration.remote_config_path].content_md)
+        self.config.read_string(self.subreddit.wiki[configuration.remote_config_path].content_md)
 
         self.fetch_pms()
 
@@ -51,11 +50,9 @@ class Flairbot(object):
         """Process the PMs"""
 
         if self.check_flair_status("allow", msg):
-            self.set_flair(author, msg, self.config.get("allow", msg), 0)
+            self.set_flair(author, msg, self.config.get("allow", msg), False)
         elif self.check_flair_status("ban", msg):
-            self.set_flair(author, msg, self.config.get("ban", msg), 1)
-        elif self.check_flair_status("tempban", msg):
-            self.set_flair(author, msg, self.config.get("tempban", msg), 2)
+            self.set_flair(author, msg, self.config.get("ban", msg), True)
 
         msgobj.mark_read()
 
@@ -75,15 +72,8 @@ class Flairbot(object):
             current_user_flair_class = current_user_flair["flair_css_class"] or ""
             current_user_flair_text = current_user_flair["flair_text"] or ""
 
-        if ban == 1:
-            self.subreddit.banned.add(
-                user, ban_reason=configuration.ban_reason)
-            self.reddit.redditor(user).message(configuration.ban_message_subject,
-                                               configuration.ban_message_body)
-            return
-        if ban == 2:
-            self.subreddit.banned.add(
-                user, ban_reason=configuration.ban_reason, duration=3)
+        if ban:
+            self.subreddit.banned.add(user, ban_reason=configuration.ban_reason)
             self.reddit.redditor(user).message(configuration.ban_message_subject,
                                                configuration.ban_message_body)
             return
@@ -95,18 +85,14 @@ class Flairbot(object):
         if current_user_flair_class.find("text-") != 0:
             self.subreddit.flair.set(user, text, flair + "-img")
         elif current_user_flair_class.find("text-red") == 0:
-            self.subreddit.flair.set(
-                user, current_user_flair_text, "text-red-" + flair + "-img")
+            self.subreddit.flair.set(user, current_user_flair_text, "text-red-" + flair + "-img")
         elif current_user_flair_class.find("text-blue") == 0:
-            self.subreddit.flair.set(
-                user, current_user_flair_text, "text-blue-" + flair + "-img")
+            self.subreddit.flair.set(user, current_user_flair_text, "text-blue-" + flair + "-img")
         elif current_user_flair_class.find("text-pink") == 0:
-            self.subreddit.flair.set(
-                user, current_user_flair_text, "text-pink-" + flair + "-img")
+            self.subreddit.flair.set(user, current_user_flair_text, "text-pink-" + flair + "-img")
         elif current_user_flair_class.find("text-brown") == 0:
             self.reddit.redditor(user).message(configuration.shame_message_subject,
                                                configuration.shame_message_body)
-
 
 if __name__ == '__main__':
     Flairbot()
